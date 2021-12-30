@@ -1,0 +1,86 @@
+﻿@page "/aanmelden"
+@inject NavigationManager _navigationManager
+@inject HttpClient httpClient
+@inject Blazored.LocalStorage.ILocalStorageService _localStorageService
+@*inject JWTWebToken.Client.Services.IProfielInterface ProfielService*@
+
+@using Blazored.LocalStorage;
+@inject ILocalStorageService sessionStorageService
+
+<h2><b>Aanmelden</b></h2>
+<hr>
+
+<EditForm Model="@authenticatieVraag" OnValidSubmit="Aanmelden">
+    <DataAnnotationsValidator />
+    <div class="col-6">
+        <InputText id="Email" @bind-Value="authenticatieVraag.Email" type="text" class="form-control" placeholder="E-mailadres" />
+        <ValidationMessage For="@(() => authenticatieVraag.Email)" />
+    </div>
+    <br />
+
+    <div class="col-6">
+        <InputText id="Wachtwoord" @bind-Value="authenticatieVraag.Password" type="password" class="form-control" placeholder="Wachtwoord" />
+        <ValidationMessage For="@(() => authenticatieVraag.Password)" />
+    </div>
+    <br />
+
+    <div class="col-6">
+        <button type="submit" class="btn btn-primary">Login</button>
+    </div>
+
+    <div class="col-6">
+        <br />Voorbeelden om mee in te loggen:<br />
+        E-mailadres:&nbsp;<b>sjansen@mrasoft.nl</b>&nbsp;Wachtwoord:&nbsp;<b>Geheim1</b><br />
+        E-mailadres:&nbsp;<b>pveermans@mrasoft.nl</b>&nbsp;Wachtwoord:&nbsp;<b>Geheim2</b><br />
+        E-mailadres:&nbsp;<b>omulder@mrasoft.nl</b>&nbsp;Wachtwoord:&nbsp;<b>Geheim3</b><br />
+    </div>
+
+    <div>
+        <ValidationSummary />
+    </div>
+
+    <div class="col-6" style="color:red">
+        <b>@fout</b>
+    </div>
+
+</EditForm>
+
+@code {
+
+    private AuthenticatieVraag authenticatieVraag = new AuthenticatieVraag();
+    private string fout = "";
+    private string token = string.Empty;
+    private string resultaat = string.Empty;
+
+    public async Task Aanmelden()
+    {
+        try
+        {
+            fout = string.Empty;
+            var resultaat = await httpClient.PostAsJsonAsync<AuthenticatieVraag>($"/api/Sportschool/aanmelden", authenticatieVraag);
+            if (resultaat.IsSuccessStatusCode)
+            {
+                AuthenticatieAntwoord authenticatieAntwoord = await resultaat.Content.ReadFromJsonAsync<AuthenticatieAntwoord>();
+                token = authenticatieAntwoord.Token;
+
+                if (token != string.Empty)
+                {
+                    // sla de token op
+                    await _localStorageService.SetItemAsync("jwt_token", token);
+
+                    // gebruik de true-parameter om te refreshen
+                    _navigationManager.NavigateTo("/", true);
+                }
+                else
+                {
+                    fout = "Het aanmelden is niet gelukt. Probeer het opnieuw.";
+                }
+            }
+        }
+        catch
+        {
+            fout = "Het aanmelden is niet gelukt. Probeer het opnieuw.";
+        }
+    }
+
+}

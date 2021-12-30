@@ -1,0 +1,37 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31019.35
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JWTWebToken.Server", "Server\JWTWebToken.Server.csproj", "{6EC27CA5-3CD4-4976-8180-D9895020E3CB}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JWTWebToken.Client", "Client\JWTWebToken.Client.csproj", "{CBA828E8-DDCA-4E86-9568-BADD70B73783}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JWTWebToken.Shared", "Shared\JWTWebToken.Shared.csproj", "{C4AFD6D0-2DC8-4718-84CD-63A03FA8A96E}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{6EC27CA5-3CD4-4976-8180-D9895020E3CB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6EC27CA5-3CD4-4976-8180-D9895020E3CB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6EC27CA5-3CD4-4976-8180-D9895020E3CB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6EC27CA5-3CD4-4976-8180-D9895020E3CB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CBA828E8-DDCA-4E86-9568-BADD70B73783}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CBA828E8-DDCA-4E86-9568-BADD70B73783}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CBA828E8-DDCA-4E86-9568-BADD70B73783}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CBA828E8-DDCA-4E86-9568-BADD70B73783}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C4AFD6D0-2DC8-4718-84CD-63A03FA8A96E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C4AFD6D0-2DC8-4718-84CD-63A03FA8A96E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C4AFD6D0-2DC8-4718-84CD-63A03FA8A96E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C4AFD6D0-2DC8-4718-84CD-63A03FA8A96E}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {1A24DC37-3830-4EB0-B69D-E78871811E99}
+	EndGlobalSection
+EndGlobal

@@ -1,0 +1,92 @@
+﻿@page "/"
+@using System.Security.Claims
+@inject HttpClient httpClient
+@inject NavigationManager navigationManager
+@inject JWTWebToken.Client.Services.IProfielInterface ProfielService
+
+<h1>Hallo wereld...</h1>
+Dit is je nieuwe Blazor app, welkom! We illusteren het één en ander met het voorbeeld van een sportschool.
+<br />
+<img style="width:35%;height:35%" src="/../images/sportschool.png" />
+
+<SurveyPrompt Title="En hoe bevalt Blazor?" />
+
+<AuthorizeView>
+
+    <Authorized>
+        Goedendag @lid.Voornaam. Je hebt jezelf aangemeld en je ID is @ID.<br />
+        Hieronder staan je gegevens. De webpagina's van je nieuwe app kun je nu bekijken.
+        <hr>
+        <ul>
+            <li>Voornaam:&nbsp;@lid.Voornaam</li>
+            <li>Achternaam:&nbsp;@lid.Achternaam</li>
+            <li>Email:&nbsp;@lid.Email</li>
+            <li>Abonnement:&nbsp;@lid.Abonnement</li>
+            <li>Abonnement verlopen:&nbsp;@lid.Expired</li>
+        </ul>
+        @if (Expired)
+        {
+            <p><b>Let op, je abonnement is niet meer geldig.</b></p>
+        }
+        Je claims:<br />
+        <ul>
+            @foreach (var claim in ClaimsDieIemandHeeft)
+            {
+                <li>@claim.Type:&nbsp;@claim.Value</li>
+            }
+        </ul>
+    </Authorized>
+
+    <NotAuthorized>
+        <p>
+            Ps: je bent niet (meer) aangemeld. Meld je (opnieuw) aan om de inhoud te zien<br />
+            van de webpagina's en...om in de beste vorm van je leven te geraken!
+        </p>
+    </NotAuthorized>
+
+</AuthorizeView>
+
+@code {
+
+    private int ID;
+    private Lid lid = new Lid();
+    private Fout fout = new Fout();
+    private List<Claim> ClaimsDieIemandHeeft;
+    private bool Expired;
+
+    [CascadingParameter]
+    public Task<AuthenticationState> authenticationState { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authenticatieStatus = await authenticationState;
+
+        var user = authenticatieStatus.User;
+
+        if (user.Identity.IsAuthenticated)
+        {
+            // Er is een claimID in authenticationState.
+            var claimID = authenticatieStatus.User.FindFirst(c => c.Type == ClaimTypes.NameIdentifier);
+            ID = Convert.ToInt32(claimID?.Value);
+
+            // Er is een claimExpired in authenticationState
+            var claimExpired = authenticatieStatus.User.FindFirst(c => c.Type == ClaimTypes.Expired);
+            Expired = Convert.ToBoolean(claimExpired?.Value);
+
+            // De claims ophalen die iemand heeft
+            ClaimsDieIemandHeeft = authenticatieStatus.User.Claims.ToList();
+
+            // We gebruiken de claimID voor het doen ophalen van de gegevens. De claimID mogen
+            // we gebruiken omdat we die hebben gekregen na een succesvolle aanmelding
+            // Aanroep via een service
+            Console.WriteLine("Profiel.razor - aanroep Service --> ProfielService.gegevenslid(" + ID + ");");
+            lid = await ProfielService.gegevenslid(ID);
+            if (lid == null || lid.ID == 0)
+            {
+                // Als het resultaat leeg is ...
+                navigationManager.NavigateTo("/", true);
+            }
+        }
+    }
+
+}

@@ -1,0 +1,69 @@
+﻿@page "/groepslessen"
+@using System.Security.Claims
+@using System.Net
+@inject HttpClient httpClient
+@inject NavigationManager navigationManager
+@inject JWTWebToken.Client.Services.IProfielInterface ProfielService
+
+<h1>Groepslessen</h1>
+
+<p>Groepslessen zijn een uitstekende manier om je figuur en conditie te verbeteren.</p>
+<img style="width:50%;height:50%" src="/../images/groepslessen.jpg" />
+<p>Een groepsles is altijd onder begeleiding van een gediplomeerd instructeur.</p>
+
+<AuthorizeView>
+    <NotAuthorized>
+        Voor deze webpagina is aanmelden verplicht.
+    </NotAuthorized>
+    <Authorized>
+        @if (!Expired)
+        {
+            <p>
+                Je hebt een geldig abonnement. Maak gebruik van je abonnement en geef je hier op voor onze groepslessen.
+            </p>
+        }
+        else
+        {
+            <p>
+                Je hebt <b>geen</b> abonnement of je abonnement is niet meer geldig.
+                Je kan onbeperkt met de groepslessen meedoen als je een geldig abonnement hebt.
+            </p>
+        }
+
+    </Authorized>
+</AuthorizeView>
+
+@code {
+    private int ID;
+    private bool Expired;
+    private Lid lid = new Lid();
+
+    [CascadingParameter]
+    public Task<AuthenticationState> authenticationState { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authenticatieStatus = await authenticationState;
+        if (authenticatieStatus.User.Identity.IsAuthenticated)
+        {
+            // Er is een claimID in authenticationState.
+            var claimID = authenticatieStatus.User.FindFirst(c => c.Type == ClaimTypes.NameIdentifier);
+            ID = Convert.ToInt32(claimID?.Value);
+
+            // Er is een claimExpired in authenticationState
+            var claimExpired = authenticatieStatus.User.FindFirst(c => c.Type == ClaimTypes.Expired);
+            Expired = Convert.ToBoolean(claimExpired?.Value);
+
+            // We gebruiken de claimID voor het doen ophalen van de gegevens. De claimID mogen
+            // we gebruiken omdat we die hebben gekregen na een succesvolle aanmelding
+            // Aanroep via een service
+            Console.WriteLine("Profiel.razor - aanroep Service --> ProfielService.gegevenslid(" + ID + ");");
+            lid = await ProfielService.gegevenslid(ID);
+            if (lid == null || lid.ID == 0)
+            {
+                // Als het resultaat leeg is ...
+                navigationManager.NavigateTo("/", true);
+            }
+        }
+    }
+}

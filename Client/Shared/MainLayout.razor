@@ -1,0 +1,51 @@
+﻿@inherits LayoutComponentBase
+@inject NavigationManager _navigationManager
+@inject HttpClient _httpClient
+@inject Blazored.LocalStorage.ILocalStorageService _localStorageService
+
+<div class="page">
+    <div class="sidebar">
+        <NavMenu />
+    </div>
+
+    <!-- Show contents (components) depending whether you are authenticated or not  -->
+    <div class="main">
+        <AuthorizeView>
+            <Authorized>
+                <div class="top-row px-4">
+                    Je bent ingelogd als @context.User.Identity.Name.&nbsp;@resultaat&nbsp;
+                    <button class="btn btn-danger" @onclick="Afmelden">Afmelden</button>
+                </div>
+            </Authorized>
+            <NotAuthorized>
+                <div class="top-row px-4">
+                    Je bent niet aangemeld.&nbsp;
+                    <button class="btn btn-primary" @onclick="Aanmelden">Aanmelden</button>
+                </div>
+            </NotAuthorized>
+        </AuthorizeView>
+        <div class="content px-4">
+            @Body
+        </div>
+    </div>
+</div>
+
+@code{
+
+    Fout fout = new Fout();
+    string resultaat = "";
+
+    private async Task Afmelden()
+    {
+        // await Task.Delay(0);
+        await _localStorageService.RemoveItemAsync("jwt_token");
+        _navigationManager.NavigateTo("/", true);
+    }
+
+    private void Aanmelden()
+    {
+        _navigationManager.NavigateTo("/aanmelden");
+    }
+}
+
+

@@ -1,0 +1,52 @@
+﻿@page "/gym"
+@using System.Security.Claims
+@using System.Net
+@inject HttpClient httpClient
+@inject NavigationManager navigationManager
+@inject JWTWebToken.Client.Services.IProfielInterface ProfielService
+
+<h1>Onze gym</h1>
+<img style="width:50%;height:50%" src="/../images/gym.jpg" />
+<p>Onze gym bevat cardio-apparatuur en allerlei krachttrainingsfaciliteiten.</p>
+
+<AuthorizeView>
+    <NotAuthorized>
+        <p>Voor deze webpagina is aanmelden verplicht.</p>
+    </NotAuthorized>
+    <Authorized>
+        <p>
+            Je kan zelfstandig sporten in onze gym en we kunnen met jou een persoonlijk trainingsprogramma opstellen.
+        </p>
+    </Authorized>
+</AuthorizeView>
+
+@code {
+
+    private int ID;
+    private Lid lid = new Lid();
+
+    [CascadingParameter]
+    public Task<AuthenticationState> authenticationState { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authenticatieStatus = await authenticationState;
+        if (authenticatieStatus.User.Identity.IsAuthenticated)
+        {
+            // Er is een claimID in authenticationState.
+            var claimID = authenticatieStatus.User.FindFirst(c => c.Type == ClaimTypes.NameIdentifier);
+            ID = Convert.ToInt32(claimID?.Value);
+
+            // We gebruiken de claimID voor het doen ophalen van de gegevens. De claimID mogen
+            // we gebruiken omdat we die hebben gekregen na een succesvolle aanmelding
+            // Aanroep via een service
+            Console.WriteLine("Profiel.razor - aanroep Service --> ProfielService.gegevenslid(" + ID + ");");
+            lid = await ProfielService.gegevenslid(ID);
+            if (lid == null || lid.ID == 0)
+            {
+                // Als het resultaat leeg is ...
+                navigationManager.NavigateTo("/", true);
+            }
+        }
+    }
+}
