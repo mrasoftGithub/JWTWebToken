@@ -6,6 +6,7 @@ using JWTWebToken.Shared.Models;
 using System.Net.Http.Json;
 using System.Security.Claims;
 using Blazored.LocalStorage;
+using System.Net.Http.Headers;
 
 using JWTWebToken.Client.Services;
 
@@ -67,14 +68,26 @@ namespace JWTWebToken.Client
             // Laatste karakter verwijderen
             token = token.Remove(token.Length - 1, 1);
 
-            // Zet de token in de header
-            _httpClient.DefaultRequestHeaders.Add("Authorization","Bearer " + token);
-            var response = await _httpClient.GetAsync("/api/Profiel/huidiglid");
-            response.EnsureSuccessStatusCode();
-            var huidigLid = await response.Content.ReadFromJsonAsync<Lid>();
+            //-- Zet de token in de header
+            //-- _httpClient.DefaultRequestHeaders.Add("Authorization","Bearer " + token);
+            //-- var response = await _httpClient.GetAsync("/api/Profiel/huidiglid");
+            //-- response.EnsureSuccessStatusCode();
+            //-- var huidigLid = await response.Content.ReadFromJsonAsync<Lid>();
+            //-- returning the user if found
+            // if (huidigLid != null) return await Task.FromResult(huidigLid); else return null;
 
-            // returning the user if found
-            if (huidigLid != null) return await Task.FromResult(huidigLid); else return null;
+            using (var request = new HttpRequestMessage(HttpMethod.Get, "/api/Profiel/huidiglid"))
+            {
+                //-- Zet de token in de header
+                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+                // use a single HttpClient instance for multiple requests.
+                var response = await _httpClient.SendAsync(request);
+                response.EnsureSuccessStatusCode();
+                var huidigLid = await response.Content.ReadFromJsonAsync<Lid>();
+                //-- returning the user if found
+                if (huidigLid != null) return await Task.FromResult(huidigLid); else return null;
+            }
+
         }
     }
 }
